@@ -1,0 +1,360 @@
+# PROJETO SUPERMERCADO
+
+produtos = []
+vendas = []
+proximo_codigo = 1
+proxima_venda = 1
+
+opcao = -1
+
+while opcao != 0:
+    print("========== SUPERMERCADO ==========")
+    print("1 - Cadastrar produto")
+    print("2 - Listar produtos")
+    print("3 - Alterar produto")
+    print("4 - Excluir produto")
+    print("5 - Realizar venda")
+    print("6 - Relatorio de estoque")
+    print("7 - Relatorio de vendas")
+    print("8 - Historico de vendas")
+    print("0 - Sair")
+    print("==================================")
+
+    opcao = int(input("Escolha uma opcao: "))
+
+    # 1 - CADASTRAR PRODUTO
+    if opcao == 1:
+        print("--- CADASTRO DE PRODUTO ---")
+        nome = input("Nome do produto: ")
+        categoria = input("Categoria (alimentos, limpeza, padaria, hortifruti ou higiene): ")
+        preco = float(input("Preco: R$ "))
+        estoque = int(input("Quantidade em estoque: "))
+        validade = input("Data de validade (DD-MM-AAAA): ")
+
+        if nome == "":
+            print("O nome nao pode ficar vazio.")
+        elif (categoria != "alimentos" and categoria != "limpeza"
+              and categoria != "padaria" and categoria != "hortifruti"
+              and categoria != "higiene"):
+            print("Categoria invalida.")
+        elif preco <= 0 or estoque < 0:
+            print("Preco deve ser maior que zero e estoque nao pode ser negativo.")
+        elif validade == "":
+            print("A validade nao pode ficar vazia.")
+        else:
+            produtos.append([proximo_codigo, nome, categoria, preco, estoque, validade])
+            print("Produto cadastrado com o codigo {}".format(proximo_codigo))
+            proximo_codigo = proximo_codigo + 1
+
+    # 2 - LISTAR PRODUTOS
+    elif opcao == 2:
+        print("--- PRODUTOS CADASTRADOS ---")
+        if len(produtos) == 0:
+            print("Nenhum produto cadastrado.")
+        else:
+            for produto in produtos:
+                print("Codigo: {} | Nome: {} | Categoria: {} | Preco: R$ {:.2f} | Estoque: {} | Validade: {}".format(
+                    produto[0], produto[1], produto[2], produto[3], produto[4], produto[5]))
+
+    # 3 - ALTERAR PRODUTO
+    elif opcao == 3:
+        print("--- ALTERAR PRODUTO ---")
+        codigo = int(input("Digite o codigo do produto: "))
+        indice = -1
+
+        for i in range(len(produtos)):
+            if produtos[i][0] == codigo:
+                indice = i
+
+        if indice == -1:
+            print("Produto nao encontrado.")
+        else:
+            print("Deixe um campo vazio para manter o valor atual.")
+            novo_nome = input("Novo nome ({}): ".format(produtos[indice][1]))
+            nova_categoria = input("Nova categoria ({}): ".format(produtos[indice][2]))
+            novo_preco = input("Novo preco: R$ ")
+            novo_estoque = input("Novo estoque: ")
+            nova_validade = input("Nova validade (DD-MM-AAAA) ({}): ".format(produtos[indice][5]))
+
+            if novo_nome != "":
+                produtos[indice][1] = novo_nome
+
+            if nova_categoria != "":
+                if (nova_categoria == "alimentos" or nova_categoria == "limpeza"
+                    or nova_categoria == "padaria" or nova_categoria == "hortifruti"
+                    or nova_categoria == "higiene"):
+                    produtos[indice][2] = nova_categoria
+                else:
+                    print("Categoria invalida; categoria anterior mantida.")
+
+            if novo_preco != "":
+                valor = float(novo_preco)
+                if valor > 0:
+                    produtos[indice][3] = valor
+                else:
+                    print("Preco invalido; preco anterior mantido.")
+
+            if novo_estoque != "":
+                quantidade = int(novo_estoque)
+                if quantidade >= 0:
+                    produtos[indice][4] = quantidade
+                else:
+                    print("Estoque invalido; estoque anterior mantido.")
+
+            if nova_validade != "":
+                produtos[indice][5] = nova_validade
+
+            print("Produto atualizado.")
+
+    # 4 - EXCLUIR PRODUTO
+    elif opcao == 4:
+        print("--- EXCLUIR PRODUTO ---")
+        codigo = int(input("Digite o codigo do produto: "))
+        indice = -1
+
+        for i in range(len(produtos)):
+            if produtos[i][0] == codigo:
+                indice = i
+
+        if indice == -1:
+            print("Produto nao encontrado.")
+        else:
+            confirmacao = input("Confirma a exclusao? (s/n): ")
+            if confirmacao == "s":
+                del produtos[indice]
+                print("Produto excluido.")
+            else:
+                print("Exclusao cancelada.")
+
+    # 5 - REALIZAR VENDA
+    elif opcao == 5:
+        print("--- REALIZAR VENDA ---")
+
+        if len(produtos) == 0:
+            print("Cadastre produtos antes de realizar uma venda.")
+        else:
+            data_atual = input("Informe a data de hoje (DD-MM-AAAA): ")
+            carrinho = []
+            continuar = "s"
+
+            while continuar == "s":
+                print("--- PRODUTOS DISPONIVEIS ---")
+                for produto in produtos:
+                    print("Codigo: {} | Nome: {} | Preco: R$ {:.2f} | Estoque: {} | Validade: {}".format(
+                        produto[0], produto[1], produto[3], produto[4], produto[5]))
+
+                codigo = int(input("Codigo do produto (0 para finalizar): "))
+
+                if codigo == 0:
+                    continuar = "n"
+                else:
+                    indice = -1
+                    for i in range(len(produtos)):
+                        if produtos[i][0] == codigo:
+                            indice = i
+
+                    if indice == -1:
+                        print("Produto nao encontrado.")
+                    else:
+                        quantidade = int(input("Quantidade desejada: "))
+
+                        quantidade_carrinho = 0
+                        for item in carrinho:
+                            if item[0] == codigo:
+                                quantidade_carrinho = quantidade_carrinho + item[3]
+
+                        disponivel = produtos[indice][4] - quantidade_carrinho
+
+                        validade_partes = produtos[indice][5].split("-")
+                        atual_partes = data_atual.split("-")
+
+                        dia_validade = int(validade_partes[0])
+                        mes_validade = int(validade_partes[1])
+                        ano_validade = int(validade_partes[2])
+
+                        dia_atual = int(atual_partes[0])
+                        mes_atual = int(atual_partes[1])
+                        ano_atual = int(atual_partes[2])
+
+                        produto_vencido = False
+
+                        if ano_validade < ano_atual:
+                            produto_vencido = True
+                        elif ano_validade == ano_atual and mes_validade < mes_atual:
+                            produto_vencido = True
+                        elif (ano_validade == ano_atual and mes_validade == mes_atual
+                              and dia_validade < dia_atual):
+                            produto_vencido = True
+
+                        if produto_vencido:
+                            print("Produto vencido. Venda nao permitida.")
+                        elif quantidade <= 0:
+                            print("A quantidade deve ser maior que zero.")
+                        elif quantidade > disponivel:
+                            print("Estoque insuficiente. Disponivel: {}".format(disponivel))
+                        else:
+                            produto = produtos[indice]
+                            desconto = 0
+
+                            if produto[2] == "alimentos":
+                                desconto = 10
+                            elif produto[2] == "limpeza":
+                                desconto = 5
+                            elif produto[2] == "padaria":
+                                desconto = 7
+                            elif produto[2] == "hortifruti":
+                                desconto = 4
+                            elif produto[2] == "higiene":
+                                desconto = 8
+
+                            if quantidade >= 5:
+                                desconto = desconto + 5
+
+                            if desconto > 15:
+                                desconto = 15
+
+                            preco_com_desconto = produto[3] * (1 - desconto / 100)
+                            subtotal = preco_com_desconto * quantidade
+
+                            carrinho.append([
+                                produto[0], produto[1], produto[2],
+                                quantidade, preco_com_desconto, subtotal, desconto])
+
+                            print("Item adicionado. Desconto aplicado: {}%".format(desconto))
+
+                print("--- CARRINHO ---")
+                total_parcial =	 0
+                if len(carrinho) == 0:
+                    print("Carrinho vazio.")
+                else:
+                    for item in carrinho:
+                        print("{} | Quantidade: {} | Subtotal: R$ {:.2f}".format(
+                            item[1], item[3], item[5]))
+                        total_parcial = total_parcial + item[5]
+                    print("Total parcial: R$ {:.2f}".format(total_parcial))
+
+                if continuar == "s":
+                    continuar = input("Deseja adicionar outro produto? (s/n): ")
+
+            if len(carrinho) == 0:
+                print("Venda cancelada: nenhum item foi adicionado.")
+            else:
+                total = 0
+                for item in carrinho:
+                    total = total + item[5]
+
+                print("Total da compra: R$ {:.2f}".format(total))
+                confirmacao = input("Confirmar venda? (s/n): ")
+
+                if confirmacao == "s":
+                    for item in carrinho:
+                        indice = -1
+                        for i in range(len(produtos)):
+                            if produtos[i][0] == item[0]:
+                                indice = i
+
+                        if indice != -1:
+                            produtos[indice][4] = produtos[indice][4] - item[3]
+
+                    vendas.append([proxima_venda, carrinho, total])
+                    print("Venda concluida. Numero da venda: {}".format(proxima_venda))
+                    proxima_venda = proxima_venda + 1
+                else:
+                    print("Venda cancelada. O estoque nao foi alterado.")
+
+    # 6 - RELATORIO DE ESTOQUE
+    elif opcao == 6:
+        print("--- RELATORIO DE ESTOQUE ---")
+        if len(produtos) == 0:
+            print("Nenhum produto cadastrado.")
+        else:
+            total_unidades = 0
+            valor_estoque = 0
+            produtos_estoque_baixo = 0
+            produtos_sem_estoque = 0
+            indice_mais_caro = 0
+
+            for i in range(len(produtos)):
+                produto = produtos[i]
+                total_unidades = total_unidades + produto[4]
+                valor_estoque = valor_estoque + produto[3] * produto[4]
+
+                if produto[4] <= 5:
+                    produtos_estoque_baixo = produtos_estoque_baixo + 1
+
+                if produto[4] == 0:
+                    produtos_sem_estoque = produtos_sem_estoque + 1
+
+                if produto[3] > produtos[indice_mais_caro][3]:
+                    indice_mais_caro = i
+
+                print("{} | Estoque: {} | Valor em estoque: R$ {:.2f} | Validade: {}".format(
+                    produto[1], produto[4], produto[3] * produto[4], produto[5]))
+
+            print("----- RESUMO DO ESTOQUE -----")
+            print("Quantidade de produtos cadastrados: {}".format(len(produtos)))
+            print("Total de unidades em estoque: {}".format(total_unidades))
+            print("Valor total do estoque: R$ {:.2f}".format(valor_estoque))
+            print("Produtos com estoque baixo (5 unidades ou menos): {}".format(
+                produtos_estoque_baixo))
+            print("Produtos sem estoque: {}".format(produtos_sem_estoque))
+            print("Produto mais caro: {} - R$ {:.2f}".format(
+                produtos[indice_mais_caro][1], produtos[indice_mais_caro][3]))
+
+    # 7 - RELATORIO DE VENDAS
+    elif opcao == 7:
+        print("--- RELATORIO DE VENDAS ---")
+        if len(vendas) == 0:
+            print("Nenhuma venda realizada.")
+        else:
+            total_arrecadado = 0
+            quantidade_itens = 0
+            total_alimentos = 0
+            total_limpeza = 0
+            total_padaria = 0
+            total_hortifruti = 0
+            total_higiene = 0
+
+            for venda in vendas:
+                total_arrecadado = total_arrecadado + venda[2]
+
+                for item in venda[1]:
+                    quantidade_itens = quantidade_itens + item[3]
+
+                    if item[2] == "alimentos":
+                        total_alimentos = total_alimentos + item[3]
+                    elif item[2] == "limpeza":
+                        total_limpeza = total_limpeza + item[3]
+                    elif item[2] == "padaria":
+                        total_padaria = total_padaria + item[3]
+                    elif item[2] == "hortifruti":
+                        total_hortifruti = total_hortifruti + item[3]
+                    elif item[2] == "higiene":
+                        total_higiene = total_higiene + item[3]
+
+            print("Quantidade de vendas: {}".format(len(vendas)))
+            print("Unidades vendidas: {}".format(quantidade_itens))
+            print("Total arrecadado: R$ {:.2f}".format(total_arrecadado))
+            print("Unidades de alimentos: {}".format(total_alimentos))
+            print("Unidades de limpeza: {}".format(total_limpeza))
+            print("Unidades de padaria: {}".format(total_padaria))
+            print("Unidades de hortifruti: {}".format(total_hortifruti))
+            print("Unidades de higiene: {}".format(total_higiene))
+
+    # 8 - HISTORICO DE VENDAS
+    elif opcao == 8:
+        print("--- HISTORICO DE VENDAS ---")
+        if len(vendas) == 0:
+            print("Nenhuma venda registrada.")
+        else:
+            for venda in vendas:
+                print("\nVenda numero: {}".format(venda[0]))
+                for item in venda[1]:
+                    print("- {} | Quantidade: {} | Desconto: {}% | Subtotal: R$ {:.2f}".format(
+                        item[1], item[3], item[6], item[5]))
+                print("Total da venda: R$ {:.2f}".format(venda[2]))
+
+    elif opcao == 0:
+        print("Sistema encerrado.")
+    else:
+        print("Opcao invalida.")
