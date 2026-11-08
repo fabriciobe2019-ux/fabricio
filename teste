@@ -133,15 +133,14 @@ while opcao != 0:
         if len(produtos) == 0:
             print("Cadastre produtos antes de realizar uma venda.")
         else:
-            data_atual = input("Informe a data de hoje (DD-MM-AAAA): ")
             carrinho = []
             continuar = "s"
 
             while continuar == "s":
                 print("--- PRODUTOS DISPONIVEIS ---")
                 for produto in produtos:
-                    print("Codigo: {} | Nome: {} | Preco: R$ {:.2f} | Estoque: {} | Validade: {}".format(
-                        produto[0], produto[1], produto[3], produto[4], produto[5]))
+                    print("Codigo: {} | Nome: {} | Preco: R$ {:.2f} | Estoque: {}".format(
+                        produto[0], produto[1], produto[3], produto[4]))
 
                 codigo = int(input("Codigo do produto (0 para finalizar): "))
 
@@ -165,30 +164,7 @@ while opcao != 0:
 
                         disponivel = produtos[indice][4] - quantidade_carrinho
 
-                        validade_partes = produtos[indice][5].split("-")
-                        atual_partes = data_atual.split("-")
-
-                        dia_validade = int(validade_partes[0])
-                        mes_validade = int(validade_partes[1])
-                        ano_validade = int(validade_partes[2])
-
-                        dia_atual = int(atual_partes[0])
-                        mes_atual = int(atual_partes[1])
-                        ano_atual = int(atual_partes[2])
-
-                        produto_vencido = False
-
-                        if ano_validade < ano_atual:
-                            produto_vencido = True
-                        elif ano_validade == ano_atual and mes_validade < mes_atual:
-                            produto_vencido = True
-                        elif (ano_validade == ano_atual and mes_validade == mes_atual
-                              and dia_validade < dia_atual):
-                            produto_vencido = True
-
-                        if produto_vencido:
-                            print("Produto vencido. Venda nao permitida.")
-                        elif quantidade <= 0:
+                        if quantidade <= 0:
                             print("A quantidade deve ser maior que zero.")
                         elif quantidade > disponivel:
                             print("Estoque insuficiente. Disponivel: {}".format(disponivel))
@@ -223,7 +199,7 @@ while opcao != 0:
                             print("Item adicionado. Desconto aplicado: {}%".format(desconto))
 
                 print("--- CARRINHO ---")
-                total_parcial =	 0
+                total_parcial = 0
                 if len(carrinho) == 0:
                     print("Carrinho vazio.")
                 else:
