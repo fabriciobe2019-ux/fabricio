@@ -1,0 +1,220 @@
+# PROJETO SUPERMERCADO
+
+produtos = []
+vendas = []
+proximo_codigo = 1
+proxima_venda = 1
+
+opcao = -1
+
+while opcao != 0:
+    print("========== SUPERMERCADO ==========")
+    print("1 - Cadastrar produto")
+    print("2 - Listar produtos")
+    print("3 - Alterar produto")
+    print("4 - Excluir produto")
+    print("5 - Realizar venda")
+    print("6 - Relatorio de estoque")
+    print("7 - Relatorio de vendas")
+    print("8 - Historico de vendas")
+    print("0 - Sair")
+    print("==================================")
+
+    opcao = int(input("Escolha uma opcao: "))
+
+    # 1 - CADASTRAR PRODUTO
+    if opcao == 1:
+        print("--- CADASTRO DE PRODUTO ---")
+        nome = input("Nome do produto: ")
+        categoria = input("Categoria (alimentos, limpeza, padaria, hortifruti ou higiene): ")
+        preco = float(input("Preco: R$ "))
+        estoque = int(input("Quantidade em estoque: "))
+        validade = input("Data de validade (DD/MM/AAAA): ")
+
+        if nome == "":
+            print("O nome nao pode ficar vazio.")
+        elif (categoria != "alimentos" and categoria != "limpeza"
+              and categoria != "padaria" and categoria != "hortifruti"
+              and categoria != "higiene"):
+            print("Categoria invalida.")
+        elif preco <= 0 or estoque <= 0:
+            print("Preco deve ser maior que zero e estoque nao pode ser negativo.")
+        elif validade == "":
+            print("A validade nao pode ficar vazia.")
+        else:
+            produtos.append([proximo_codigo, nome, categoria, preco, estoque, validade])
+            print(f"Produto cadastrado com o codigo {proximo_codigo}")
+            proximo_codigo = proximo_codigo + 1
+
+    # 2 - LISTAR PRODUTOS
+    elif opcao == 2:
+        print("--- PRODUTOS CADASTRADOS ---")
+
+        if len(produtos) == 0:
+            print("Nenhum produto cadastrado.")
+        else:
+            for produto in produtos:
+                print("Codigo: {} | Nome: {} | Categoria: {} | Preco: R$ {:.2f} | Estoque: {} | Validade: {}".format(
+                    produto[0], produto[1], produto[2], produto[3], produto[4], produto[5]))
+
+    # 3 - ALTERAR PRODUTO
+    elif opcao == 3:
+        print("--- ALTERAR PRODUTO ---")
+        codigo_produto = int(input("Digite o codigo do produto: "))
+        encontrado = False
+
+        for produto in produtos:
+            if produto[0] == codigo_produto:
+                produto[1] = input("Novo nome: ")
+                produto[2] = input("Nova categoria: ")
+                produto[3] = float(input("Novo preco: "))
+                produto[4] = int(input("Novo estoque: "))
+                produto[5] = input("Nova validade: ")
+                print("Produto alterado com sucesso!")
+                encontrado = True
+
+        if encontrado == False:
+            print("Produto nao encontrado.")
+
+    # 4 - EXCLUIR PRODUTO
+    elif opcao == 4:
+        print("--- EXCLUIR PRODUTO ---")
+        codigo = int(input("Digite o codigo: "))
+        encontrado = False
+
+        for produto in produtos:
+            if produto[0] == codigo:
+                produtos.remove(produto)
+                print("Produto excluido com sucesso!")
+                encontrado = True
+                break
+
+        if encontrado == False:
+            print("Produto nao encontrado.")
+
+    # 5 - REALIZAR VENDA
+    elif opcao == 5:
+        print("--- REALIZAR VENDA ---")
+        data_compra = input("Data da compra: ")
+        carrinho = []
+        total = 0
+        continuar = "s"
+
+        while continuar == "s":
+            codigo = int(input("Codigo do produto: "))
+            quantidade = int(input("Quantidade: "))
+            encontrado = False
+
+            for produto in produtos:
+                if produto[0] == codigo:
+                    encontrado = True
+
+                    if quantidade <= produto[4] and quantidade > 0:
+                        subtotal = produto[3] * quantidade
+                        carrinho.append([produto[0], produto[1], quantidade, subtotal])
+                        total = total + subtotal
+                        print("Produto adicionado ao carrinho!")
+                    else:
+                        print("Estoque insuficiente.")
+
+            if encontrado == False:
+                print("Produto nao encontrado.")
+
+            continuar = input("Adicionar outro produto? (s/n): ")
+
+        if len(carrinho) > 0:
+            print("Total da compra: R$ {:.2f}".format(total))
+            confirmar = input("Confirmar venda? (s/n): ")
+
+            if confirmar == "s":
+                for item in carrinho:
+                    for produto in produtos:
+                        if produto[0] == item[0]:
+                            produto[4] = produto[4] - item[2]
+
+                vendas.append([proxima_venda, data_compra, carrinho, total])
+                proxima_venda = proxima_venda + 1
+                print("Venda realizada!")
+            else:
+                print("Venda cancelada.")
+
+    # 6 - RELATORIO DE ESTOQUE
+    elif opcao == 6:
+        print("--- RELATORIO DE ESTOQUE ---")
+
+        if len(produtos) == 0:
+            print("Nenhum produto cadastrado.")
+        else:
+            total_unidades = 0
+            valor_estoque = 0
+            produtos_estoque_baixo = 0
+            produtos_sem_estoque = 0
+            indice_mais_caro = 0
+
+            for i in range(len(produtos)):
+                produto = produtos[i]
+                total_unidades = total_unidades + produto[4]
+                valor_estoque = valor_estoque + produto[3] * produto[4]
+
+                if produto[4] <= 5:
+                    produtos_estoque_baixo = produtos_estoque_baixo + 1
+
+                if produto[4] == 0:
+                    produtos_sem_estoque = produtos_sem_estoque + 1
+
+                if produto[3] > produtos[indice_mais_caro][3]:
+                    indice_mais_caro = i
+
+                print("{} | Estoque: {} | Valor em estoque: R$ {:.2f} | Validade: {}".format(produto[1], produto[4], produto[3] * produto[4], produto[5]))
+
+            print("----- RESUMO DO ESTOQUE -----")
+            print("Quantidade de produtos cadastrados: {}".format(len(produtos)))
+            print(f"Total de unidades em estoque: {total_unidades}")
+            print("Valor total do estoque: R$ {:.2f}".format(valor_estoque))
+            print(f"Produtos com estoque baixo (5 unidades ou menos): {produtos_estoque_baixo}")
+            print(f"Produtos sem estoque: {produtos_sem_estoque}")
+            print("Produto mais caro: {} | R$ {:.2f}".format(produtos[indice_mais_caro][1], produtos[indice_mais_caro][3]))
+
+    # 7 - RELATORIO DE VENDAS
+    elif opcao == 7:
+        print("--- RELATORIO DE VENDAS ---")
+
+        if len(vendas) == 0:
+            print("Nenhuma venda realizada.")
+        else:
+            total_arrecadado = 0
+            quantidade_itens = 0
+
+            for venda in vendas:
+                total_arrecadado = total_arrecadado + venda[3]
+
+                for item in venda[2]:
+                    quantidade_itens = quantidade_itens + item[2]
+
+            print("Quantidade de vendas: {}".format(len(vendas)))
+            print(f"Unidades vendidas: {quantidade_itens}")
+            print("Total arrecadado: R$ {:.2f}".format(total_arrecadado))
+
+    # 8 - HISTORICO DE VENDAS
+    elif opcao == 8:
+        print("--- HISTORICO DE VENDAS ---")
+
+        if len(vendas) == 0:
+            print("Nenhuma venda registrada.")
+        else:
+            for venda in vendas:
+                print(f"Venda numero: {venda[0]}")
+                print(f"Data da compra: {venda[1]}")
+
+                for item in venda[2]:
+                    print("- {} | Quantidade: {} | Subtotal: R$ {:.2f}".format(
+                        item[1], item[2], item[3]))
+
+                print("Total da venda: R$ {:.2f}".format(venda[3]))
+
+    # 0 - ENCERRAR PROGRAMA
+    elif opcao == 0:
+        print("Sistema encerrado.")
+
+    else:
+        print("Opcao invalida.")
