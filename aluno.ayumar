@@ -123,20 +123,37 @@ while opcao != 0:
             continuar = input("Adicionar outro produto? (s/n): ")
 
         if len(carrinho) > 0:
-            print("Total da compra: R$ {:.2f}".format(total))
+            if total >= 200:
+                  percentual = 10
+            elif total >= 100:
+                  percentual = 5
+            else:
+                  percentual = 0
+  
+            desconto = total * percentual / 100
+            total_final = total - desconto
+  
+            print("Valor da compra: R$ {:.2f}".format(total))
+            print(f"Desconto aplicado: {percentual}%")
+            print("Valor do desconto: R$ {:.2f}".format(desconto))
+            print("TOTAL A PAGAR: R$ {:.2f}".format(total_final))
+  
             confirmar = input("Confirmar venda? (s/n): ")
-
+  
             if confirmar == "s":
+  
                 for item in carrinho:
                     for produto in produtos:
                         if produto[0] == item[0]:
                             produto[4] = produto[4] - item[2]
-
-                vendas.append([proxima_venda, data_compra, carrinho, total])
+  
+                vendas.append([proxima_venda, data_compra, carrinho, total, percentual, desconto, total_final])
+  
                 proxima_venda = proxima_venda + 1
                 print("Venda realizada!")
+  
             else:
-                print("Venda cancelada.")
+               print("Venda cancelada.")
 
     # 6 - RELATORIO DE ESTOQUE
     elif opcao == 6:
@@ -212,7 +229,6 @@ while opcao != 0:
 
                 print("Total da venda: R$ {:.2f}".format(venda[3]))
 
-    # 0 - ENCERRAR PROGRAMA
     elif opcao == 0:
         print("Sistema encerrado.")
 
